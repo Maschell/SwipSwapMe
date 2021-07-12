@@ -19,6 +19,10 @@
 
 #include "utils/voice_info.h"
 extern uint8_t gSwap;
+#define G_SWAP_NORMAL     0
+#define G_SWAP_SWAPPED    1
+#define G_SWAP_MIRROR_TV  2
+#define G_SWAP_MIRROR_DRC 3
 extern uint8_t gCallbackCooldown;
 extern uint8_t gAppStatus;
 extern uint32_t gButtonCombo;

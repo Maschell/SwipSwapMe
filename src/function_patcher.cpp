@@ -63,14 +63,44 @@ DECL_FUNCTION(void, AXFreeVoice, void *v){
 }
 
 DECL_FUNCTION(void, GX2CopyColorBufferToScanBuffer, GX2ColorBuffer *colorBuffer, int32_t scan_target){
-    if(gSwap){
-        if(scan_target == 1){
-            scan_target = 4;
-        }else{
-            scan_target = 1;
+    if(gSwap == G_SWAP_NORMAL) {
+        // simply copy as normal
+        real_GX2CopyColorBufferToScanBuffer(colorBuffer,scan_target);
+    } else if(gSwap == G_SWAP_SWAPPED){
+        // swap the target then scan
+        if(scan_target == GX2_SCAN_TARGET_TV){
+            scan_target = GX2_SCAN_TARGET_DRC;
+        } else if(scan_target == GX2_SCAN_TARGET_DRC) {
+            scan_target = GX2_SCAN_TARGET_TV;
+        } else {
+            // not sure what to do here
         }
+        real_GX2CopyColorBufferToScanBuffer(colorBuffer,scan_target);
+    } else if(gSwap == G_SWAP_MIRROR_TV) {
+        // display TV on both
+        if(scan_target == GX2_SCAN_TARGET_TV) {
+            // copy and scan to both
+            real_GX2CopyColorBufferToScanBuffer(colorBuffer,GX2_SCAN_TARGET_TV);
+            real_GX2CopyColorBufferToScanBuffer(colorBuffer,GX2_SCAN_TARGET_DRC);
+        } else if(scan_target == GX2_SCAN_TARGET_DRC) {
+            // drop the target entirely
+        } else {
+            // not sure what to do here
+        }
+    } else if(gSwap == G_SWAP_MIRROR_DRC) {
+       // display DRC on both
+        if(scan_target == GX2_SCAN_TARGET_DRC) {
+            // copy and scan to both
+            real_GX2CopyColorBufferToScanBuffer(colorBuffer,GX2_SCAN_TARGET_TV);
+            real_GX2CopyColorBufferToScanBuffer(colorBuffer,GX2_SCAN_TARGET_DRC);
+        } else if(scan_target == GX2_SCAN_TARGET_TV) {
+            // drop the target entirely
+        } else {
+            // not sure what to do here
+        }
+    } else {
+        // Shouldn't ever happen
     }
-    real_GX2CopyColorBufferToScanBuffer(colorBuffer,scan_target);
 }
 
 /*
@@ -98,7 +128,22 @@ DECL_FUNCTION(int32_t, VPADRead, int32_t chan, VPADStatus *buffer, uint32_t buff
     if(result > 0 && *error == VPAD_READ_SUCCESS && ((buffer[0].hold & gButtonCombo) == gButtonCombo) && gCallbackCooldown == 0 ){
         gCallbackCooldown = 0x3C;
         if(gAppStatus == WUPS_APP_STATUS_FOREGROUND){
-			gSwap = !gSwap;
+			switch(gSwap) {
+                case G_SWAP_NORMAL:
+                    gSwap = G_SWAP_SWAPPED;
+                    break;
+                case G_SWAP_SWAPPED:
+                    gSwap = G_SWAP_MIRROR_TV;
+                    break;
+                case G_SWAP_MIRROR_TV:
+                    gSwap = G_SWAP_MIRROR_DRC;
+                    break;
+                case G_SWAP_MIRROR_DRC:
+                    gSwap = G_SWAP_NORMAL;
+                    break;
+                default:
+                    gSwap = G_SWAP_NORMAL;
+            }
             swapVoices();
         }
     }

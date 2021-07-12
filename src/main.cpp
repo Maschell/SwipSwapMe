@@ -31,10 +31,10 @@
 #include <nsysnet/socket.h>
 #include <utils/logger.h>
 
-WUPS_PLUGIN_NAME("SwipSwapMe");
-WUPS_PLUGIN_DESCRIPTION("Swaps the gamepad and tv screen when pressing a certain button (TV is default)");
+WUPS_PLUGIN_NAME("SwipSwapMirror");
+WUPS_PLUGIN_DESCRIPTION("Fork of SwipSwapMe, Swaps the gamepad and tv screen when pressing a certain button (TV is default)");
 WUPS_PLUGIN_VERSION("v1.0");
-WUPS_PLUGIN_AUTHOR("Maschell");
+WUPS_PLUGIN_AUTHOR("KrispyRice9, original by Maschell");
 WUPS_PLUGIN_LICENSE("GPL");
 
 WUPS_FS_ACCESS()
